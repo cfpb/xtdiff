@@ -7,10 +7,8 @@ hierarchically structured information", by Sudarshan S. Chawathe, Anand
 Rajaraman, Hector Garcia-Molina, and Jennifer Widom.](http://ilpubs.stanford.edu:8090/115/1/1995-46.pdf).
 
 This means it is a library that will compare two (lxml) XML trees and
-generates a set of actions that will transform one of the trees into the
-other. The actions are in the form of an ordered set of either `INSERT`,
-`UPDATE`, `MOVE`, or `DELETE`, when performed in order they will
-transform the first tree into the second.
+generate a set of actions that will transform one tree into the
+other.
 
 - [Requirements](#requirements)
 - [Installation](#installation)

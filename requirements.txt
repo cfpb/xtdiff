@@ -1,0 +1,2 @@
+lxml==3.5.0
+-e git+https://github.com/LuminosoInsight/ordered-set#egg=ordered-set

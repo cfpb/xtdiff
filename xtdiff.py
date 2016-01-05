@@ -247,11 +247,6 @@ def editscript(left_root, right_root, matches):
 
     script = OrderedSet()
 
-    # We need to perform the script operations as we go along for child
-    # alignment later, but we'll also need to refer back to the original
-    # left tree to get the correct xpaths for nodes in the left tree.
-    left_root = left_root
-
     # If the trees don't have the same signature (see function doc for
     # what that means) We can't transform the left into the right.
     if getpath(left_root) != getpath(right_root):

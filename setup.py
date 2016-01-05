@@ -10,10 +10,8 @@ setup(
     url='http://cfpb.github.io',
     author='CFPB',
     license='CC0',
-    version=__import__('xtdiff').__version__,
-    description=' '.join(__import__(
-        'xtdiff'
-    ).__doc__.splitlines()).strip(),
+    version='0.1.0',
+    description='This implements "Change detection in hierarchically structured information", by Sudarshan S. Chawathe, Anand Rajaraman, Hector Garcia-Molina, and Jennifer Widom.',
 
     long_description=open('README.md').read() 
             if os.path.exists('README.md') else '',

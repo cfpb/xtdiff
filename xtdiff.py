@@ -22,7 +22,6 @@ from lxml import etree
 
 from ordered_set import OrderedSet
 
-__version__ = '0.1.0'
 __all__ = ['diff', 'transform', 'simplematch', 'fastmatch']
 
 

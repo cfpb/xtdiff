@@ -4,7 +4,7 @@
 
 This implements ["Change detection in hierarchically structured
 information", by Sudarshan S. Chawathe, Anand Rajaraman, Hector
-Garcia-Molina, and Jennifer Widom.](http://ilpubs.stanford.edu:8090/115/1/1995-46.pdf
+Garcia-Molina, and Jennifer Widom.](http://ilpubs.stanford.edu:8090/115/1/1995-46.pdf)
 
 Readme forthcoming.
 

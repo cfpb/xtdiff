@@ -79,7 +79,7 @@ def compare(left_node, right_node):
 
 def common_descendents(left_node, right_node, threshold=THRESHOLD):
     """ Return the a ratio of common descendents between the two nodes
-        over the number of descendents in the left_node. """
+        over the maximum number of descendents between either. """
 
     count = 0.0
 
@@ -96,8 +96,9 @@ def common_descendents(left_node, right_node, threshold=THRESHOLD):
             if compare(left_child, right_child) >= (threshold * 2):
                 count += 1
 
-    if len(left_descendents) > 0:
-        return count / len(left_descendents)
+    max_descendents = max(len(left_descendents), len(right_descendents))
+    if max_descendents > 0:
+        return count / max_descendents
     return 0.0
 
 

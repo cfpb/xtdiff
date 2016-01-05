@@ -28,14 +28,13 @@ Python 3, shouldn't you?
 xtdiff requires:
 
 - [lxml](http://lxml.de/)
-- [ordered-set](https://github.com/LuminosoInsight/ordered-set) (2.0 or `HEAD` if 2.0 is not released)
 
 
 ## Installation
 
 xtdiff can be installed as a Python package:
 
-```
+```shell
 pip install git+https://github.com/cfpb/xtdiff
 ```
 

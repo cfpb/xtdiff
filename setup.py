@@ -20,10 +20,6 @@ setup(
     include_package_data=True,
     install_requires=[
         'lxml',
-        'ordered-set>=2.0.0',
-    ],
-    dependency_links=[
-        "git+https://github.com/LuminosoInsight/ordered-set#egg=ordered-set"
     ],
     setup_requires=[
         'nose>=1.0'

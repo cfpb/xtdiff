@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Python xtdiff
-
-This implements "Change detection in hierarchically structured
-information", by Sudarshan S. Chawathe, Anand Rajaraman, Hector
-Garcia-Molina, and Jennifer Widom.
-
-Chawathe, Sudarshan S., Anand Rajaraman, Hector Garcia-Molina, and
-Jennifer Widom. "Change detection in hierarchically structured
-information." In ACM SIGMOD Record, vol. 25, no. 2, pp. 493-504. ACM,
-1996.
-"""
 
 from __future__ import unicode_literals
 
@@ -20,8 +8,6 @@ from difflib import SequenceMatcher
 from collections import MutableSet
 
 from lxml import etree
-
-__all__ = ['diff', 'transform', 'simplematch', 'fastmatch']
 
 
 # The default equality threshold
@@ -134,14 +120,17 @@ def compare(left_node, right_node):
         # Both are None
         ratio += 1
 
-    if left_node.tail is not None and right_node.tail is not None:
-        tail_matcher = SequenceMatcher(a=left_node.tail, b=right_node.tail)
-        ratio += tail_matcher.ratio()
-    elif left_node.tail is None and right_node.tail is None:
-        # Both are None
-        ratio += 1
+    # XXX: Tail text is problematic. We need to handle it better.
+    # if left_node.tail is not None and right_node.tail is not None:
+    #     tail_matcher = SequenceMatcher(a=left_node.tail, b=right_node.tail)
+    #     ratio += tail_matcher.ratio()
+    # elif left_node.tail is None and right_node.tail is None:
+    #     # Both are None
+    #     ratio += 1
+    # 
+    # return (ratio * 2 / 3)
 
-    return (ratio * 2 / 3)
+    return ratio
 
 
 def common_descendents(left_node, right_node, threshold=THRESHOLD):
@@ -175,6 +164,13 @@ def equal_match(left_node, right_node, threshold=THRESHOLD):
     # If their tags aren't equal, the nodes aren't equal.
     if left_node.tag != right_node.tag:
         return False
+
+    # If there's a matching id between the two elements, they are
+    # automatically equal.
+    if left_node.get('id') is not None and \
+            right_node.get('id') is not None and \
+            left_node.get('id') == right_node.get('id'):
+        return True
 
     # Compare leaf nodes
     if len(left_node.getchildren()) == 0 and \
@@ -350,12 +346,8 @@ def editscript(left_root, right_root, matches):
                             index)
             script.add(action)
 
-            # Perform the action on our working copy of the left tree so
-            # we'll be able to introspect
-            transform(left_root, set([action, ]))
-
-            # Get the left child so we can use it
-            left_child = left_root.xpath(getpath(right_child))[0]
+            # Get the left child so we can use it in alignment later
+            left_child = etree.fromstring(action.node)
 
             # Add the match to our master set of matching nodes
             matches.add(Match(left_child, right_child))
@@ -377,10 +369,6 @@ def editscript(left_root, right_root, matches):
                                 right_child.tail,
                                 frozenset(right_child.attrib.items()))
                 script.add(action)
-
-                # Perform the action on our working copy of the left
-                # tree so we'll be able to introspect
-                transform(left_root, set([action, ]))
 
             # See if we've got a mis-match between parents or a change
             # in parental index
@@ -404,10 +392,6 @@ def editscript(left_root, right_root, matches):
                               getpath(right_parent),
                               index)
                 script.add(action)
-
-                # Perform the action on our working copy of the left
-                # tree so we'll be able to introspect
-                transform(left_root, set([action, ]))
 
         # Align the child nodes
         left_children = left_child.getchildren()
@@ -434,10 +418,6 @@ def editscript(left_root, right_root, matches):
             action = MOVE(getpath(left_child), getpath(right_parent), index)
             script.add(action)
 
-            # Perform the action on our working copy of the left
-            # tree so we'll be able to introspect
-            transform(left_root, set([action, ]))
-
     # If there any nodes we've haven't visited in left_tree that we did
     # in right_tree (that don't now have a match in matches), they need
     # to be deleted.
@@ -447,9 +427,6 @@ def editscript(left_root, right_root, matches):
             # Add a delete action for this node to the script
             action = DELETE(getpath(left_child))
             script.add(action)
-
-            # Perform the action on our working copy of the left tree
-            transform(left_root, set([action, ]))
 
     return script
 
@@ -493,7 +470,8 @@ def transform(tree, script):
     return tree
 
 
-def diff(left_tree, right_tree, match=simplematch, match_threshold=THRESHOLD):
+def diff(left_tree, right_tree, match=simplematch,
+         match_threshold=THRESHOLD):
     """ Return difference between the left tree and the right tree as an
         edit script that will transform the left into the right.
 
@@ -501,12 +479,10 @@ def diff(left_tree, right_tree, match=simplematch, match_threshold=THRESHOLD):
         (simplematch and fastmatch are included, simplematch is the
         default) and a matching threshold. """
 
-    # We're going to need to operate on the left tree, but we want to do
-    # it non-destructively, so we'll make a copy of it.
-    left_tree = deepcopy(left_tree)
-
     # Get the match set
     matches = match(left_tree, right_tree, threshold=match_threshold)
 
+    # Get the edit script
     edit_script = editscript(left_tree, right_tree, matches)
+
     return edit_script

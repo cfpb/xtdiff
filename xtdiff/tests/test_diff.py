@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from unittest import TestCase
+from unittest import TestCase, skip
 
 import lxml.etree as etree
 
-from xtdiff import (INSERT, UPDATE, MOVE, DELETE, 
+from ..diff import (INSERT, UPDATE, MOVE, DELETE, THRESHOLD,
                     Match, simplematch as match, fastmatch, lcs, 
                     common_descendents, compare, equal_match, 
-                    matching_partner, editscript, diff)
+                    matching_partner, editscript, diff,
+                    transform)
 
 
 class XDiffTestCase(TestCase):
@@ -32,20 +33,20 @@ class XDiffTestCase(TestCase):
         # Mostly matching
         root_one = etree.fromstring('<foo>woot</foo>')
         root_two = etree.fromstring('<foo>woohoot</foo>')
-        self.assertEqual(compare(root_one, root_two), 1.8181818181818183)
+        self.assertTrue(compare(root_one, root_two) > THRESHOLD * 2)
 
     def test_compare_attr(self):
         # Attributes match, text mostly matches. Should be the same as
         # above.
         root_one = etree.fromstring('<foo one="two" two="one">woot</foo>')
         root_two = etree.fromstring('<foo two="one" one="two">woohoot</foo>')
-        self.assertEqual(compare(root_one, root_two), 1.8181818181818183)
+        self.assertTrue(compare(root_one, root_two) > THRESHOLD * 2)
 
     def test_compare_attr_inequality(self):
         # Attribute inequality, should be quite a bit less than above
         root_one = etree.fromstring('<foo one="two" two="one">woot</foo>')
         root_two = etree.fromstring('<foo two="three" one="two">woohoot</foo>')
-        self.assertEqual(compare(root_one, root_two), 1.1515151515151516)
+        self.assertTrue(compare(root_one, root_two) < THRESHOLD * 2)
 
     def test_equal_match_mostly(self):
         # Mostly true — this matches our threshold.
@@ -69,6 +70,12 @@ class XDiffTestCase(TestCase):
         # Attribute truth — should meet the threshold
         root_one = etree.fromstring('<foo one="two" two="one">woot</foo>')
         root_two = etree.fromstring('<foo two="one" one="two">woohoot</foo>')
+        self.assertTrue(equal_match(root_one, root_two))
+
+    def test_equal_ids(self):
+        # Should be equal regardless of difference.
+        root_one = etree.fromstring('<foo id="foo" one="two">woot</foo>')
+        root_two = etree.fromstring('<foo id="foo" bar="bar">asdfgh</foo>')
         self.assertTrue(equal_match(root_one, root_two))
 
     def test_lcs(self):
@@ -118,8 +125,6 @@ class XDiffTestCase(TestCase):
         self.assertEqual(0, len(script))
 
     def test_diff_update(self):
-        # This seems to weirdly fail randomly. Check for something out
-        # of order somewhere.
         root_one = etree.fromstring("<root><first>Some text</first></root>")
         root_two = etree.fromstring("<root><first>Some text more</first></root>")
         script = diff(root_one, root_two)
@@ -146,9 +151,10 @@ class XDiffTestCase(TestCase):
         root_one = etree.fromstring("<root><foo>bar</foo><foo>first</foo></root>")
         root_two = etree.fromstring("<root><foo>first</foo><foo>bar</foo></root>")
         script = diff(root_one, root_two)
-        self.assertEqual(1, len(script))
+        self.assertEqual(2, len(script))
         self.assertEqual({
-                MOVE(path='/root/foo[2]', parent='/root', index=0)
+                MOVE(path='/root/foo[2]', parent='/root', index=0),
+                MOVE(path='/root/foo[1]', parent='/root', index=1)
             },
             script)
             
@@ -158,3 +164,41 @@ class XDiffTestCase(TestCase):
         script = diff(root_one, root_two)
         self.assertEqual(1, len(script))
         self.assertEqual({DELETE(path='/root/foo')}, script)
+
+    def test_transform_update(self):
+        root_one = etree.fromstring("<root><first>Some text</first></root>")
+        root_two = etree.fromstring("<root><first>Some text more</first></root>")
+        script = {UPDATE(path='/root/first', text='Some text more',
+                    tail=None, attrib=frozenset())}
+        result = transform(root_one, script)
+        self.assertEqual(etree.tostring(result),
+                etree.tostring(root_two))
+
+    def test_transform_insert(self):
+        root_one = etree.fromstring("<root></root>")
+        root_two = etree.fromstring("<root><first>A child Node</first></root>")
+        script = {INSERT(node=b'<first>A child Node</first>', 
+                         parent='/root', index=0)}
+        result = transform(root_one, script)
+        self.assertEqual(etree.tostring(result),
+                etree.tostring(root_two))
+
+    def test_transform_move(self):
+        root_one = etree.fromstring("<root><foo>bar</foo><foo>first</foo></root>")
+        root_two = etree.fromstring("<root><foo>first</foo><foo>bar</foo></root>")
+        script = {
+                MOVE(path='/root/foo[2]', parent='/root', index=0),
+                MOVE(path='/root/foo[1]', parent='/root', index=1)
+            }
+        result = transform(root_one, script)
+        self.assertEqual(etree.tostring(result),
+                etree.tostring(root_two))
+            
+    def test_transform_delete(self):
+        root_one = etree.fromstring("<root><foo/></root>")
+        root_two = etree.fromstring("<root></root>")
+        script = {DELETE(path='/root/foo')}
+        result = transform(root_one, script)
+        self.assertEqual(etree.tostring(result),
+                etree.tostring(root_two))
+

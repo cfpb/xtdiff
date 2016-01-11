@@ -16,7 +16,7 @@ setup(
     long_description=open('README.md').read() 
             if os.path.exists('README.md') else '',
 
-    py_modules=['xtdiff', ],
+    packages=['xtdiff', ],
     include_package_data=True,
     install_requires=[
         'lxml',
@@ -25,5 +25,5 @@ setup(
         'nose>=1.0'
     ],
 
-    test_suite="test_xtdiff",
+    test_suite="xtdiff.tests",
 )

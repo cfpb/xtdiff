@@ -346,8 +346,13 @@ def editscript(left_root, right_root, matches):
                             index)
             script.add(action)
 
+            # Perform the action on our working copy of the left
+            # tree so we'll be able to introspect
+            transform(left_root, set([action, ]))
+
             # Get the left child so we can use it in alignment later
-            left_child = etree.fromstring(action.node)
+            # left_child = etree.fromstring(action.node)
+            left_child = left_root.xpath(getpath(right_child))[0]
 
             # Add the match to our master set of matching nodes
             matches.add(Match(left_child, right_child))
@@ -369,6 +374,10 @@ def editscript(left_root, right_root, matches):
                                 right_child.tail,
                                 frozenset(right_child.attrib.items()))
                 script.add(action)
+
+                # Perform the action on our working copy of the left
+                # tree so we'll be able to introspect
+                transform(left_root, set([action, ]))
 
             # See if we've got a mis-match between parents or a change
             # in parental index
@@ -392,6 +401,10 @@ def editscript(left_root, right_root, matches):
                               getpath(right_parent),
                               index)
                 script.add(action)
+
+                # Perform the action on our working copy of the left
+                # tree so we'll be able to introspect
+                transform(left_root, set([action, ]))
 
         # Align the child nodes
         left_children = left_child.getchildren()
@@ -418,6 +431,10 @@ def editscript(left_root, right_root, matches):
             action = MOVE(getpath(left_child), getpath(right_parent), index)
             script.add(action)
 
+            # Perform the action on our working copy of the left
+            # tree so we'll be able to introspect
+            transform(left_root, set([action, ]))
+
     # If there any nodes we've haven't visited in left_tree that we did
     # in right_tree (that don't now have a match in matches), they need
     # to be deleted.
@@ -427,6 +444,10 @@ def editscript(left_root, right_root, matches):
             # Add a delete action for this node to the script
             action = DELETE(getpath(left_child))
             script.add(action)
+
+            # Perform the action on our working copy of the left
+            # tree so we'll be able to introspect
+            transform(left_root, set([action, ]))
 
     return script
 
@@ -478,6 +499,10 @@ def diff(left_tree, right_tree, match=simplematch,
         Optionally, an element matching function can be provided
         (simplematch and fastmatch are included, simplematch is the
         default) and a matching threshold. """
+
+    # We're going to need to operate on the left tree, but we want to do
+    # it non-destructively, so we'll make a copy of it.
+    left_tree = deepcopy(left_tree)
 
     # Get the match set
     matches = match(left_tree, right_tree, threshold=match_threshold)

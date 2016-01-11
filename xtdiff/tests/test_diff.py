@@ -151,10 +151,9 @@ class XDiffTestCase(TestCase):
         root_one = etree.fromstring("<root><foo>bar</foo><foo>first</foo></root>")
         root_two = etree.fromstring("<root><foo>first</foo><foo>bar</foo></root>")
         script = diff(root_one, root_two)
-        self.assertEqual(2, len(script))
+        self.assertEqual(1, len(script))
         self.assertEqual({
                 MOVE(path='/root/foo[2]', parent='/root', index=0),
-                MOVE(path='/root/foo[1]', parent='/root', index=1)
             },
             script)
             

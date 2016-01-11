@@ -13,9 +13,9 @@ other.
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Using xtdiff](#using-xtdiff)
-    - [Generating diffs](#generating-diffs)
-    - [Applying diffs](#applying-diffs)
-    - [Generating XSL diffs](#generating-xsl-diffs)
+    - [`diff()`: Generating diffs](#diff-generating-diffs)
+    - [`transform()`: Applying diffs](#transform-applying-diffs)
+    - [`xsldiff()`: Generating XSL diffs](#xsldiff-generating-xsl-diffs)
 - [Licensing](#licensing)
 
 
@@ -45,7 +45,7 @@ pip install git+https://github.com/cfpb/xtdiff
 >>> import xtdiff
 ```
 
-### Generating diffs
+### `diff()`: Generating diffs
 
 xtdiff has a `diff()` function that takes two lxml `Element` objects 
 and returns an ordered set of actions as an `OrderedSet` that will 
@@ -152,7 +152,7 @@ OrderedSet([
 ])
 ```
 
-### Applying diffs
+### `transform()`: Applying diffs
 
 xtdiff includes a function, `transform()`, that will apply a set of
 actions returned by the `diff` function to the lxml element given.
@@ -173,7 +173,7 @@ actions returned by the `diff` function to the lxml element given.
 </root>"
 ```
 
-## Generating XSL diffs
+### `xsldiff()`: Generating XSL diffs
 
 xtdiff can also generate an XSL stylesheet that can be used to transform
 the left XML document into the right document. The API for generating
@@ -207,10 +207,8 @@ the `toxsl()` function:
 </xsl:stylesheet>
 ```
 
-
 **NOTE**: The XSL stylesheet will only work with specific left document,
 not documents comforming to its schema generally.
-
 
 
 ## Licensing 

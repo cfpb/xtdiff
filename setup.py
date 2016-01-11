@@ -7,8 +7,10 @@ from setuptools import setup
 
 setup(
     name='xtdiff',
-    url='http://cfpb.github.io',
+    url='https://github.com/cfpb/xtdiff',
+    download_url='https://github.com/cfpb/xtdiff/archive/0.1.0.tar.gz',
     author='CFPB',
+    author_email='tech@cfpb.gov',
     license='CC0',
     version='0.1.0',
     description='This implements "Change detection in hierarchically structured information", by Sudarshan S. Chawathe, Anand Rajaraman, Hector Garcia-Molina, and Jennifer Widom.',
@@ -25,5 +27,5 @@ setup(
         'nose>=1.0'
     ],
 
-    test_suite="xtdiff.tests",
+    test_suite='xtdiff.tests',
 )

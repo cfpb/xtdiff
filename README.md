@@ -13,8 +13,9 @@ other.
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Using xtdiff](#using-xtdiff)
-    - [Generating Diffs](#generating-diffs)
-    - [Applying Diffs](#applying-diffs)
+    - [Generating diffs](#generating-diffs)
+    - [Applying diffs](#applying-diffs)
+    - [Generating XSL diffs](#generating-xsl-diffs)
 - [Licensing](#licensing)
 
 
@@ -44,12 +45,12 @@ pip install git+https://github.com/cfpb/xtdiff
 >>> import xtdiff
 ```
 
-### Generating Diffs
+### Generating diffs
 
-xtdiff has a `diff()` function that takes two lxml elements and returns
-an ordered set of actions that will transform the first (hereafter
-referred to as the "left") into the second (hereafter referred to as the
-"right").
+xtdiff has a `diff()` function that takes two lxml `Element` objects 
+and returns an ordered set of actions as an `OrderedSet` that will 
+transform the first (hereafter referred to as the "left") into the 
+second (hereafter referred to as the "right").
 
 There are four possible actions that can be performed, `INSERT`,
 `UPDATE`, `MOVE`, and `DELETE`.
@@ -151,7 +152,7 @@ OrderedSet([
 ])
 ```
 
-### Applying Diffs
+### Applying diffs
 
 xtdiff includes a function, `transform()`, that will apply a set of
 actions returned by the `diff` function to the lxml element given.
@@ -171,6 +172,46 @@ actions returned by the `diff` function to the lxml element given.
   <para>Lorem ipsum dolor sit amet</para>
 </root>"
 ```
+
+## Generating XSL diffs
+
+xtdiff can also generate an XSL stylesheet that can be used to transform
+the left XML document into the right document. The API for generating
+XSL diffs is the same as for generating an `OrderedSet` edit script
+outlined above.
+
+The `xsldiff()` function takes a left lxml `Element` and a right lxml
+`Element` and returns an `Element` representing the XSL stylesheet. The
+stylesheet can then be writen to disk an applied to the original
+document as needed.
+
+```python
+>>> left = "..."
+>>> right = "..."
+>>> xsl = xtdiff.xsldiff(etree.fromstring(left), etree.fromstring(right))
+>>> etree.tostring(xsl)
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  ...
+</xsl:stylesheet>
+```
+
+An existing `OrderedSet` edit script can also be serialized to XSL with
+the `toxsl()` function:
+
+```python
+>>> actions = xtdiff.diff(left_root, right_root)
+>>> xsl = xtdiff.toxsl(actions)
+>>> etree.tostring(xsl)
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  ...
+</xsl:stylesheet>
+```
+
+
+**NOTE**: The XSL stylesheet will only work with specific left document,
+not documents comforming to its schema generally.
+
+
 
 ## Licensing 
 1. [TERMS](TERMS.md)

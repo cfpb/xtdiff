@@ -19,4 +19,3 @@ from .xsl import toxsl, xsldiff
 __all__ = ['diff', 'transform', 'simplematch', 'fastmatch',
            'INSERT', 'UPDATE', 'MOVE', 'DELETE', 'Match',
            'toxsl', 'xsldiff']
-

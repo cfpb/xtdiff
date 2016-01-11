@@ -4,8 +4,8 @@ from unittest import TestCase, skip
 
 import lxml.etree as etree
 
-from ..diff import (INSERT, UPDATE, MOVE, DELETE, Match)
 from ..xsl import xsldiff
+
 
 class XDiffXSLTestCase(TestCase):
 
@@ -16,7 +16,7 @@ class XDiffXSLTestCase(TestCase):
         transform = etree.XSLT(xsl)
         result = transform(root_one)
         self.assertEqual(etree.tostring(result),
-                etree.tostring(root_two))
+                         etree.tostring(root_two))
 
     def test_toxsl_update_text(self):
         root_one = etree.fromstring("<root><first>Some text</first></root>")
@@ -27,7 +27,7 @@ class XDiffXSLTestCase(TestCase):
         result = transform(root_one)
 
         self.assertEqual(etree.tostring(result),
-                etree.tostring(root_two))
+                         etree.tostring(root_two))
 
     @skip
     # XXX: We don't handle attribute changes well at all yet.
@@ -41,7 +41,8 @@ class XDiffXSLTestCase(TestCase):
         result = transform(root_one)
 
         self.assertEqual(etree.tostring(result),
-                etree.tostring(root_two))
+                         etree.tostring(root_two))
+
     @skip
     # XXX: We don't handle tail text changes well at all yet.
     def test_toxsl_update_tail(self):
@@ -56,7 +57,7 @@ class XDiffXSLTestCase(TestCase):
         print(etree.tostring(result))
 
         self.assertEqual(etree.tostring(result),
-                etree.tostring(root_two))
+                         etree.tostring(root_two))
 
     def test_toxsl_move(self):
         root_one = etree.fromstring("<root><foo>bar</foo><foo>first</foo></root>")
@@ -67,8 +68,8 @@ class XDiffXSLTestCase(TestCase):
         result = transform(root_one)
 
         self.assertEqual(etree.tostring(result),
-                etree.tostring(root_two))
-            
+                         etree.tostring(root_two))
+
     def test_toxsl_delete(self):
         root_one = etree.fromstring("<root><foo/></root>")
         root_two = etree.fromstring("<root></root>")
@@ -78,7 +79,4 @@ class XDiffXSLTestCase(TestCase):
         result = transform(root_one)
 
         self.assertEqual(etree.tostring(result),
-                etree.tostring(root_two))
-
-        
-
+                         etree.tostring(root_two))

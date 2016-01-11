@@ -19,13 +19,13 @@ import re
 from lxml import etree
 
 from .diff import INSERT, UPDATE, MOVE, DELETE
-from .diff import simplematch, Match, THRESHOLD
+from .diff import simplematch, THRESHOLD
 from .diff import diff
 
 
 XSL_NAMESPACE = 'http://www.w3.org/1999/XSL/Transform'
 XSL = '{%s}' % XSL_NAMESPACE
-NSMAP = {'xsl': XSL_NAMESPACE} # the default namespace (no prefix)
+NSMAP = {'xsl': XSL_NAMESPACE}
 
 
 def insert(action, xsl):
@@ -45,8 +45,9 @@ def insert(action, xsl):
     # Select and keep all the elements that preceed the index where
     # we're inserting.
     preceeding_copy_of = etree.SubElement(copy,
-            XSL + 'copy-of', nsmap=NSMAP)
-    preceeding_copy_of.set('select', 
+                                          XSL + 'copy-of',
+                                          nsmap=NSMAP)
+    preceeding_copy_of.set('select',
                            '*[position() < {}]'.format(str(action.index)))
 
     # Insert the new element
@@ -54,8 +55,9 @@ def insert(action, xsl):
 
     # Select and keep all subsequent elements.
     succeeding_copy_of = etree.SubElement(copy,
-        XSL + 'copy-of', nsmap=NSMAP)
-    succeeding_copy_of.set('select', 
+                                          XSL + 'copy-of',
+                                          nsmap=NSMAP)
+    succeeding_copy_of.set('select',
                            '*[position() >= {}]'.format(str(action.index)))
 
     xsl.append(insert)
@@ -79,7 +81,7 @@ def update(action, xsl):
     text.text = action.text
 
     # Update attributes
-    # XXX: This is not implemented yet because the matching/script 
+    # XXX: This is not implemented yet because the matching/script
     # code doesn't generate an UDPATE for attribute changes right
     # now.
 
@@ -87,7 +89,7 @@ def update(action, xsl):
 
     # Update tail
     # XXX: This is not implemented yet because tail
-    # matching/actions/etc are just fubar. 
+    # matching/actions/etc are just fubar.
     # if action.tail:
     #     update_tail = etree.Element(XSL + 'template', nsmap=NSMAP)
     #     update_tail.set('match', action.path + '/following-sibling::text()')
@@ -110,11 +112,11 @@ def move(action, xsl):
     """
     # To move a node basically amounts to a combination of insert
     # and delete. It is inserted into the parent node and deleted
-    # from its original location. 
+    # from its original location.
 
     # Find out if the parent already has a template match. If so, we'll
     # append to that.
-    parent_matches = xsl.xpath('//*[@match="{}"]'.format(action.parent)) 
+    parent_matches = xsl.xpath('//*[@match="{}"]'.format(action.parent))
     if len(parent_matches) > 0:
         parent = parent_matches[0]
     else:
@@ -130,23 +132,26 @@ def move(action, xsl):
 
     # Select and keep all the elements that preceed the index where
     # we're inserting.
-    insert_preceeding_copy_of = etree.SubElement(insert_copy,
-        XSL + 'copy-of', nsmap=NSMAP)
-    insert_preceeding_copy_of.set('select', 
-        '*[position() < {} and position() != {}]'.format(
-            str(action.index + 1), str(index)))
+    prec_copy_of = etree.SubElement(insert_copy,
+                                    XSL + 'copy-of',
+                                    nsmap=NSMAP)
+    prec_copy_of.set('select',
+                     '*[position() < {} and position() != {}]'.format(
+                         str(action.index + 1), str(index)))
 
     # Insert the new element
     insert_copy_of = etree.SubElement(insert_copy,
-        XSL + 'copy-of', nsmap=NSMAP)
+                                      XSL + 'copy-of',
+                                      nsmap=NSMAP)
     insert_copy_of.set('select', action.path)
 
     # Select and keep all subsequent elements.
-    insert_succeeding_copy_of = etree.SubElement(insert_copy,
-        XSL + 'copy-of', nsmap=NSMAP)
-    insert_succeeding_copy_of.set('select', 
-        '*[position() >= {} and  position() != {}]'.format(
-            str(action.index + 1), str(index)))
+    succ_copy_of = etree.SubElement(insert_copy,
+                                    XSL + 'copy-of',
+                                    nsmap=NSMAP)
+    succ_copy_of.set('select',
+                     '*[position() >= {} and  position() != {}]'.format(
+                         str(action.index + 1), str(index)))
 
     delete = etree.Element(XSL + 'template', nsmap=NSMAP)
     delete.set('match', action.path)
@@ -163,7 +168,7 @@ def delete(action, xsl):
 
 
 def toxsl(script, insert=insert, update=update, move=move,
-           delete=delete):
+          delete=delete):
     ''' Convert the given edit script to an XSL stylesheet.  '''
 
     # Create the XSL stylesheet
@@ -173,8 +178,9 @@ def toxsl(script, insert=insert, update=update, move=move,
     match_all = etree.SubElement(xsl, XSL + 'template', nsmap=NSMAP)
     match_all.set('match', '@* | node()')
     match_all_copy = etree.SubElement(match_all, XSL + 'copy', nsmap=NSMAP)
-    match_all_apply = etree.SubElement(match_all_copy, 
-            XSL + 'apply-templates', nsmap=NSMAP)
+    match_all_apply = etree.SubElement(match_all_copy,
+                                       XSL + 'apply-templates',
+                                       nsmap=NSMAP)
     match_all_apply.set('select', '@* | node()')
     match_all_apply.set('name', 'identity')
 
@@ -196,7 +202,7 @@ def toxsl(script, insert=insert, update=update, move=move,
 
 
 def xsldiff(left_tree, right_tree, match=simplematch,
-         match_threshold=THRESHOLD):
+            match_threshold=THRESHOLD):
     """ Simple wrapper around toxsl(diff()) """
 
     return toxsl(diff(left_tree, right_tree, match=match,

@@ -127,7 +127,7 @@ def compare(left_node, right_node):
     # elif left_node.tail is None and right_node.tail is None:
     #     # Both are None
     #     ratio += 1
-    # 
+    #
     # return (ratio * 2 / 3)
 
     return ratio
@@ -382,7 +382,8 @@ def editscript(left_root, right_root, matches):
             # See if we've got a mis-match between parents or a change
             # in parental index
             if (Match(left_parent, right_parent) not in matches) or \
-                    left_parent.index(left_child) != right_parent.index(right_child):
+                    left_parent.index(left_child) != \
+                    right_parent.index(right_child):
                 # Get the left parent's right partner
                 right_parent = matching_partner(matches, left_parent)
                 if right_parent is None:
@@ -419,7 +420,8 @@ def editscript(left_root, right_root, matches):
         common_sequence = lcs(left_child, right_child,
                               lambda l, r: Match(l, r) in matches)
 
-        for left_child, right_child in zip(left_match_children, right_children):
+        for left_child, right_child in \
+                zip(left_match_children, right_children):
             if (left_child, right_child) in common_sequence:
                 # these are already aligned
                 continue

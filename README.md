@@ -207,8 +207,9 @@ the `toxsl()` function:
 </xsl:stylesheet>
 ```
 
-**NOTE**: The XSL stylesheet will only work with specific left document,
-not documents comforming to its schema generally.
+**NOTE**: The XSL stylesheet will only work with the specific left 
+document it was generated for, not documents comforming to its schema 
+generally.
 
 
 ## Licensing 

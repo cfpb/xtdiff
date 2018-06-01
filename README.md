@@ -1,3 +1,5 @@
+# :warning: THIS REPO IS DEPRECATED (6/1/2018) :warning:
+
 # xtdiff: XML Tree Diff
 
 [![Build Status](https://travis-ci.org/cfpb/xtdiff.svg?branch=master)](https://travis-ci.org/cfpb/xtdiff)
